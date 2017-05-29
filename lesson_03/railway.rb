@@ -1,6 +1,7 @@
 class Station
   attr_accessor :name#, :fleet
 
+#Не очень удачное название. Назал бы проще - @trains, сразу понятно, что там в переменной содержится
   def initialize(name)
     @name = name
     @fleet = []
@@ -11,16 +12,19 @@ class Station
   end
 
   def outgo_train(train)
-    @fleet .delete(train)
+    @fleet.delete(train)
   end
 
+#Тогда тут не нужен select, а нужен обычный each. А еще лучше здесь не делать вывод на экран
+#(это должен делать вызвающий код), а просто возвращать данные, т.е. массив поездов.
+#Пробелы после скобок и перед ними не ставятся,
   def show (type="all")
     if type.to_s == "all"
-      @fleet.select  {|train| puts "#{train.number} - #{train.typ_train}" }
+      @fleet.select {|train| puts "#{train.number} - #{train.typ_train}" }
     elsif
-      @fleet.select  { |train| puts "#{train.number} - #{train.typ_train}" if train.typ_train == type.to_s }
+      @fleet.select {|train| puts "#{train.number} - #{train.typ_train}" if train.typ_train == type.to_s }
     else
-      puts " введите cargo/passenger/all"
+      puts " введите cargo/passenger/all" #Это тоже лишнее
     end
   end
 
@@ -30,7 +34,7 @@ class Route < Station
   attr_accessor :route
 
   def initialize (first, last)
-    @route = [first.name, last.name]
+    @route = [first.name, last.name] #В маршруте должны объекты станций храниться, а не их имена.
   end
 
   def add (station)
@@ -53,18 +57,20 @@ class Train < Route
 
   attr_reader :number
 
+#также между названием метода и открывающей скобкой пробел тоже не нужен
   def initialize ( number, typ_train, size)
     @number = number.to_s
     @typ_train = typ_train
     @size = size
-    @route
-    @location
+    @route #Не нужно объявлять пустые переменные, считай, что все переменные, которые нужны уже есть.
+    @location #И ты в любом методе можешь их использовать. По-умолчанию, перемнные инициализируются значением nil
   end
 
   def stop
     self.speed = 0
   end
 
+#Я же писал - нужно разделить это на 2 отдельных метода: один для удаления, другой для добавления вагонов
   def update_size(x)
       if x == "-" && @size > 0 && @speed==0
         @size-=1
