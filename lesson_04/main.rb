@@ -28,12 +28,12 @@ class Main
       puts "Выберите действие"
       puts "1-- создать станцию."
       puts "2-- создать поезд."
-      puts "3-- создать маршрут."
-      puts "4-- маршрут: добавить/удалить станцию."
-      puts "5-- Назначать маршрут поезду."
-      puts "6-- переместить поезд по маршруту вперед и назад."
-      puts "7-- поезд: прицепить/отцепить вагоны."
-      puts "8-- карта станций и передвижений поездов."
+      puts "3-- создать маршрут." #условие: минимум 2 станции
+      puts "4-- маршрут: добавить/удалить станцию." #условие:  наличие маршрут, наличие станции
+      puts "5-- Назначать маршрут поезду." #условие: наличие поезда, наличие маршрута
+      puts "6-- переместить поезд по маршруту вперед и назад." #условие: наличие поезда, вперед - станция не конечная, назад станция не начальная
+      puts "7-- поезд: прицепить/отцепить вагоны."#условие: наличие поезда, поезда, которые стоят на станции
+      puts "8-- карта станций и передвижений поездов." #наличие станций
       puts "9-- выход."
       puts "Выберите  от 1 до 9"
       choice = gets.chomp.downcase
@@ -71,20 +71,32 @@ class Main
     end
 
     def self.list_routes
-      puts "Список маршрутов:"
-      @routes.each.with_index(1) {|route, index| puts "#{index} - #{route.route[0].name}/#{route.route[-1].name}"}
+      if @routes.size >0
+        puts "Список маршрутов:"
+        @routes.each.with_index(1) {|route, index| puts "#{index} - #{route.route[0].name}/#{route.route[-1].name}"}
+      else
+         puts "Сначала создайте маршрут"
+      end
     end
 
     def self.list_trains
-      puts "Список поездов:"
-      @trains.each.with_index(1) {|train, index| puts "#{index} - поезд номер №#{train.number} - тип: #{TYPE[train.typ_train]}, количество вагонов: #{train.carriages.size}" }
+      if @trains.size >0
+        puts "Список поездов:"
+        @trains.each.with_index(1) {|train, index| puts "#{index} - поезд номер №#{train.number} - тип: #{TYPE[train.typ_train]}, количество вагонов: #{train.carriages.size}" }
+      else
+        puts "Сначала создайте поезд"
+      end
     end
 
     def self.display_all
-      puts "8-- карта станций и передвижений поездов."
-      @stations.each.with_index(1) do   |station, index|
-        puts "#{index} - #{station.name}"
-        station.show
+      if @stations.size >0
+        puts "8-- карта станций и передвижений поездов."
+        @stations.each.with_index(1) do   |station, index|
+         puts "#{index} - #{station.name}"
+         station.show
+      else
+        puts "Нет станций для отображения, создайте станцию"
+      end
       end
     end
 
@@ -116,19 +128,23 @@ class Main
     end
 
     def self.create_route
-      list_stations
-      puts "введите номер начальной станции"
-      n = gets.chomp.to_i - 1
-      first = @stations[n]
-      puts "введите номер конечной станции"
-      n =  gets.chomp.to_i - 1
-      last = @stations[n]
-      way = Route.new(first, last)
-      @routes << way
-      # p way
-      # p way.route[0]
-      puts "Создан маршрут  #{first.name} - #{last.name}"
-      list_routes
+      if @stations.size > 1
+        list_stations
+        puts "введите номер начальной станции"
+        n = gets.chomp.to_i - 1
+        first = @stations[n]
+        puts "введите номер конечной станции"
+        n =  gets.chomp.to_i - 1
+        last = @stations[n]
+        way = Route.new(first, last)
+        @routes << way
+        # p way
+        # p way.route[0]
+        puts "Создан маршрут  #{first.name} - #{last.name}"
+        list_routes
+      else
+        puts "Для создания маршрута необходимо наличие минимум 2-х станций"
+      end
     end
 
     def self.add_remove_station_to_route
@@ -140,16 +156,15 @@ class Main
       puts "введите 1 - для добавления станции в маршрут, 2 - для удаления станции из маршрута"
       n = gets.chomp.to_s
       if n == "1"
-        add_station_route
+        (@stations - @way.route).size > 0 ? add_station_route :  puts("Нет станций для добавления в маршрут, создайте станцию!")
       elsif n == "2"
-        remove_station_route
+        @way.route.size > 2 ? remove_station_route : puts("Нет станций для удаления")
       else
         OBJECT_ERROR
       end
     end
 
     def self.add_station_route
-      #для массива размер которого >2
       puts "Список станций для добавления в маршрут:"
       @available_stations = @stations - @way.route
       @available_stations.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
@@ -166,9 +181,6 @@ class Main
     end
 
     def self.remove_station_route
-    #для массива размер которого >2
-      p @way
-      p @stations
       puts "Список станций:"
       removable_stations = @way.route - [@way.route.first] - [@way.route.last]
       p removable_stations
@@ -205,7 +217,7 @@ class Main
     end
 
     def self.move_train_back_forth
-      list_trains
+      @trains.size > 0 ? list_trains : puts("Сначала создайте поезд")
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1
       train = @trains[n]
@@ -215,11 +227,13 @@ class Main
       puts "выберите направление движение: 1 -  вперед, 2- назад"
       n = gets.chomp.to_s
       if n == "1"
-        train.forward
+        #условие: вперед - станция не конечная
+        train.index(train.current_station]) != -1 ? train.forward : puts("Поезд, находится на конечной станции маршрута. Движение возможно только назад!")
         train.current_station.arrive_train(train)
         # p train
       elsif n == "2"
-        train.backward
+        #условие: движение назад станция не начальная
+        train.index(train.current_station]) != 0 ? train.backward : puts("Поезд находится на начальной станции маршрута. Движение возможно только вперед")
         train.current_station.arrive_train(train)
         # p train
         # p train.current_station
@@ -230,6 +244,7 @@ class Main
 
     def self.add_remove_carriage
       # выводить те поезда, которые стоят на станции
+      #@trains = @trains.select {|train| !train.current_station.nil?}
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1

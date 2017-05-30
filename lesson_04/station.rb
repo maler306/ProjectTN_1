@@ -15,7 +15,11 @@ class Station
   end
 
   def show
-    @trains.each { |train| puts "поезд №#{train.number} - тип: #{TYPE[train.typ_train]}, маршрут следования: #{train.route[0].name} - #{train.route[-1].name}, количество вагонов: #{train.carriages.size}"}
+    if @trains.size > 0
+      @trains.each { |train| puts "поезд №#{train.number} - тип: #{TYPE[train.typ_train]}, маршрут следования: #{train.route[0].name} - #{train.route[-1].name}, количество вагонов: #{train.carriages.size}"}
+    else
+      puts "Нет поездов на станции"
+    end
   end
 
 end
