@@ -1,13 +1,13 @@
-class Main
+require_relative 'station'
+require_relative 'route'
+require_relative 'train'
+require_relative 'cargo_train'
+require_relative 'passenger_train'
+require_relative 'carriage'
+require_relative 'cargo_carriage'
+require_relative 'passenger_carriage'
 
-    require_relative 'station'
-    require_relative 'route'
-    require_relative 'train'
-    require_relative 'cargo_train'
-    require_relative 'passenger_train'
-    require_relative 'carriage'
-    require_relative 'cargo_carriage'
-    require_relative 'passenger_carriage'
+class Main
 
     TYPE = {cargo: "грузовой", passenger: "пассажирский"}
     OBJECT_ERROR = "Ошибка ввода!"
@@ -15,18 +15,20 @@ class Main
     attr_reader :stations, :routes, :trains# :create_station
     #attr_writer :stations, :routes, :trains
 
-    @stations = []
-    @routes = []
-    @trains = []
+    def initialize
+      @stations = []
+      @routes = []
+      @trains = []
+    end
 
-    puts "Активировать: enter"
+    # def self.user_choice
+    #   user_choice = gets.to_i
+    # end
 
-    users_choice = gets.chomp
-
-    def self.choices (choice)
-      loop do
+    def choices
+      # loop do
       puts "Выберите действие"
-      puts "1-- создать станцию."
+      puts "1-- создать станцию."#станция имя не должно быть пустым
       puts "2-- создать поезд."
       puts "3-- создать маршрут." #условие: минимум 2 станции
       puts "4-- маршрут: добавить/удалить станцию." #условие:  наличие маршрут, наличие станции
@@ -36,7 +38,10 @@ class Main
       puts "8-- карта станций и передвижений поездов." #наличие станций
       puts "9-- выход."
       puts "Выберите  от 1 до 9"
-      choice = gets.chomp.downcase
+    end
+
+    def action(choice)
+      # choice = gets.chomp
       case choice
         when '1'
           create_station
@@ -58,19 +63,19 @@ class Main
           abort
         else
           puts OBJECT_ERROR
-        end
       end
+      # end
     end
 
     #с интерфейса эти методы должны быть недоступны
     private
 
-    def self.list_stations
+    def list_stations
       puts "Список станций:"
       @stations.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
     end
 
-    def self.list_routes
+    def list_routes
       if @routes.size >0
         puts "Список маршрутов:"
         @routes.each.with_index(1) {|route, index| puts "#{index} - #{route.route[0].name}/#{route.route[-1].name}"}
@@ -79,7 +84,7 @@ class Main
       end
     end
 
-    def self.list_trains
+    def list_trains
       if @trains.size >0
         puts "Список поездов:"
         @trains.each.with_index(1) {|train, index| puts "#{index} - поезд номер №#{train.number} - тип: #{TYPE[train.typ_train]}, количество вагонов: #{train.carriages.size}" }
@@ -88,29 +93,35 @@ class Main
       end
     end
 
-    def self.display_all
+    def display_all
       if @stations.size >0
         puts "8-- карта станций и передвижений поездов."
         @stations.each.with_index(1) do   |station, index|
          puts "#{index} - #{station.name}"
          station.show
+       end
       else
         puts "Нет станций для отображения, создайте станцию"
-      end
+      # end
       end
     end
 
-    def  self.create_station
+    def  create_station
       puts "Введите название новой станции"
       title = gets.chomp.downcase.capitalize!
-      station=Station.new(title)
-      @stations << station
-      puts "Станция #{station.name} создана!"
-      #p @stations
-      list_stations
+      if !title.nil?
+        station=Station.new(title)
+        @stations << station
+        puts "Станция #{station.title} создана!"
+        #p @stations
+        list_stations
+      else
+         puts "Станция должна иметь название"
+       end
+
     end
 
-    def self.create_train
+    def create_train
       puts "выберите тип поезда: 1 - пассажирский, 2- грузовой"
       n = gets.chomp.to_s
         puts "Введите номер поезда:"
@@ -127,7 +138,7 @@ class Main
       list_trains
     end
 
-    def self.create_route
+    def create_route
       if @stations.size > 1
         list_stations
         puts "введите номер начальной станции"
@@ -147,7 +158,7 @@ class Main
       end
     end
 
-    def self.add_remove_station_to_route
+    def add_remove_station_to_route
       list_routes
       puts "выберите номер маршрута"
       number = gets.chomp.to_i - 1
@@ -164,7 +175,7 @@ class Main
       end
     end
 
-    def self.add_station_route
+    def add_station_route
       puts "Список станций для добавления в маршрут:"
       @available_stations = @stations - @way.route
       @available_stations.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
@@ -180,7 +191,7 @@ class Main
         end
     end
 
-    def self.remove_station_route
+    def remove_station_route
       puts "Список станций:"
       removable_stations = @way.route - [@way.route.first] - [@way.route.last]
       p removable_stations
@@ -199,7 +210,7 @@ class Main
         end
     end
 
-    def self.add_route_to_train
+    def add_route_to_train
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i-1
@@ -216,7 +227,7 @@ class Main
       # p train
     end
 
-    def self.move_train_back_forth
+    def move_train_back_forth
       @trains.size > 0 ? list_trains : puts("Сначала создайте поезд")
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1
@@ -228,12 +239,12 @@ class Main
       n = gets.chomp.to_s
       if n == "1"
         #условие: вперед - станция не конечная
-        train.index(train.current_station]) != -1 ? train.forward : puts("Поезд, находится на конечной станции маршрута. Движение возможно только назад!")
+        train.index(train.current_station) != -1 ? train.forward : puts("Поезд, находится на конечной станции маршрута. Движение возможно только назад!")
         train.current_station.arrive_train(train)
         # p train
       elsif n == "2"
         #условие: движение назад станция не начальная
-        train.index(train.current_station]) != 0 ? train.backward : puts("Поезд находится на начальной станции маршрута. Движение возможно только вперед")
+        train.index(train.current_station) != 0 ? train.backward : puts("Поезд находится на начальной станции маршрута. Движение возможно только вперед")
         train.current_station.arrive_train(train)
         # p train
         # p train.current_station
@@ -242,7 +253,7 @@ class Main
       end
     end
 
-    def self.add_remove_carriage
+    def add_remove_carriage
       # выводить те поезда, которые стоят на станции
       #@trains = @trains.select {|train| !train.current_station.nil?}
       list_trains
@@ -267,7 +278,7 @@ class Main
       end
     end
 
-    def self.create_carriage
+    def create_carriage
         @typ_carriage = @train.typ_train
       if @typ_carriage == :cargo
         @carriage = CargoCarriage.new
@@ -277,8 +288,15 @@ class Main
       end
     end
 
+end
 
-choices(users_choice)
+def self.user_choice
+ choice = gets.chomp
+end
 
+main = Main.new
 
+loop do
+  main.choices
+  main.action(user_choice)#(choice)
 end

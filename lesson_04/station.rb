@@ -2,7 +2,7 @@ class Station
   attr_accessor :name
 
   def initialize(name)
-    @name = name
+    @name = name.to_s
     @trains = []
   end
 
