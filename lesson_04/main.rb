@@ -19,8 +19,9 @@ class Main
     @routes = []
     @trains = []
 
-    users_choice = gets.chomp
+    puts "Активировать: enter"
 
+    users_choice = gets.chomp
 
     def self.choices (choice)
       loop do
@@ -38,7 +39,7 @@ class Main
       choice = gets.chomp.downcase
       case choice
         when '1'
-          Main.create_station
+          create_station
         when '2'
           create_train
         when '3'
@@ -61,27 +62,25 @@ class Main
       end
     end
 
-  choices(users_choice)
-
     #с интерфейса эти методы должны быть недоступны
     private
 
-    def list_stations
+    def self.list_stations
       puts "Список станций:"
       @stations.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
     end
 
-    def list_routes
+    def self.list_routes
       puts "Список маршрутов:"
       @routes.each.with_index(1) {|route, index| puts "#{index} - #{route.route[0].name}/#{route.route[-1].name}"}
     end
 
-    def list_trains
+    def self.list_trains
       puts "Список поездов:"
       @trains.each.with_index(1) {|train, index| puts "#{index} - поезд номер №#{train.number} - тип: #{TYPE[train.typ_train]}, количество вагонов: #{train.carriages.size}" }
     end
 
-    def display_all
+    def self.display_all
       puts "8-- карта станций и передвижений поездов."
       @stations.each.with_index(1) do   |station, index|
         puts "#{index} - #{station.name}"
@@ -99,7 +98,7 @@ class Main
       list_stations
     end
 
-    def create_train
+    def self.create_train
       puts "выберите тип поезда: 1 - пассажирский, 2- грузовой"
       n = gets.chomp.to_s
         puts "Введите номер поезда:"
@@ -116,7 +115,7 @@ class Main
       list_trains
     end
 
-    def create_route
+    def self.create_route
       list_stations
       puts "введите номер начальной станции"
       n = gets.chomp.to_i - 1
@@ -132,7 +131,7 @@ class Main
       list_routes
     end
 
-    def add_remove_station_to_route
+    def self.add_remove_station_to_route
       list_routes
       puts "выберите номер маршрута"
       number = gets.chomp.to_i - 1
@@ -149,14 +148,14 @@ class Main
       end
     end
 
-    def add_station_route
+    def self.add_station_route
       #для массива размер которого >2
       puts "Список станций для добавления в маршрут:"
       @available_stations = @stations - @way.route
       @available_stations.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
       puts "введите номер выбранной станции"
       n = gets.chomp.to_i-1
-        if n>=0 && n < @available_stations.size
+        if n>=0 && n < @available_stations.size && @available_stations.size >= 2
           station =@available_stations[n]
           @way.add(station)
           #p @way
@@ -166,7 +165,7 @@ class Main
         end
     end
 
-    def remove_station_route
+    def self.remove_station_route
     #для массива размер которого >2
       p @way
       p @stations
@@ -188,7 +187,7 @@ class Main
         end
     end
 
-    def add_route_to_train
+    def self.add_route_to_train
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i-1
@@ -205,7 +204,7 @@ class Main
       # p train
     end
 
-    def move_train_back_forth
+    def self.move_train_back_forth
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1
@@ -229,7 +228,7 @@ class Main
       end
     end
 
-    def add_remove_carriage
+    def self.add_remove_carriage
       # выводить те поезда, которые стоят на станции
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
@@ -253,7 +252,7 @@ class Main
       end
     end
 
-    def create_carriage
+    def self.create_carriage
         @typ_carriage = @train.typ_train
       if @typ_carriage == :cargo
         @carriage = CargoCarriage.new
@@ -264,6 +263,7 @@ class Main
     end
 
 
+choices(users_choice)
 
 
 end
