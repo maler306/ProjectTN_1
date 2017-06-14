@@ -12,8 +12,7 @@ class Main
     TYPE = {cargo: "грузовой", passenger: "пассажирский"}
     OBJECT_ERROR = "Ошибка ввода!"
 
-    attr_reader :stations, :routes, :trains# :create_station
-    #attr_writer :stations, :routes, :trains
+    attr_reader :stations, :routes, :trains
 
     def initialize
       @stations = []
@@ -37,7 +36,6 @@ class Main
     end
 
     def action(choice)
-      # choice = gets.chomp
       case choice
         when '1'
           create_station
@@ -60,7 +58,6 @@ class Main
         else
           puts OBJECT_ERROR
       end
-      # end
     end
 
     #с интерфейса эти методы должны быть недоступны
@@ -98,7 +95,6 @@ class Main
        end
       else
         puts "Нет станций для отображения, создайте станцию"
-      # end
       end
     end
 
@@ -109,7 +105,6 @@ class Main
         station=Station.new(title)
         @stations << station
         puts "Станция #{station.title} создана!"
-        #p @stations
         list_stations
       else
          puts "Станция должна иметь название"
@@ -145,8 +140,6 @@ class Main
         last = @stations[n]
         way = Route.new(first, last)
         @routes << way
-        # p way
-        # p way.route[0]
         puts "Создан маршрут  #{first.name} - #{last.name}"
         list_routes
       else
@@ -159,7 +152,6 @@ class Main
       puts "выберите номер маршрута"
       number = gets.chomp.to_i - 1
       @way=@routes[number]
-      # p @way
       puts "введите 1 - для добавления станции в маршрут, 2 - для удаления станции из маршрута"
       n = gets.chomp.to_s
       if n == "1"
@@ -180,7 +172,6 @@ class Main
         if n>=0 && n < @available_stations.size && @available_stations.size >= 2
           station =@available_stations[n]
           @way.add(station)
-          #p @way
           puts "Станция #{station.name} успешно добавлена"
         else
           puts OBJECT_ERROR
@@ -196,11 +187,8 @@ class Main
       n = gets.chomp.to_i-1
         if n>= 0 && n < removable_stations.size
           station =removable_stations[n]
-          # p station
-          # p @way
           @way.delete(station)
           puts "Станция  успешно удалена"
-          # p @way
         else
           puts OBJECT_ERROR
         end
@@ -211,16 +199,12 @@ class Main
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i-1
       train = @trains[n]
-      # p train
       list_routes
       puts "введите номер маршрута"
       n = gets.chomp.to_i-1
       route = @routes[n]
-      # p route
       train.departure(route)
-      # p train
       train.current_station.arrive_train(train)
-      # p train
     end
 
     def move_train_back_forth
@@ -228,22 +212,17 @@ class Main
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1
       train = @trains[n]
-      # train info
       puts "поезд номер №#{train.number} - тип: #{TYPE[train.typ_train]} - текущая станция: #{train.current_station.name}, количество вагонов: #{train.carriages.size}"
       train.route.map { |station|  print "#{station.name}/ " }
       puts "выберите направление движение: 1 -  вперед, 2- назад"
       n = gets.chomp.to_s
       if n == "1"
-        #условие: вперед - станция не конечная
         train.index(train.current_station) != -1 ? train.forward : puts("Поезд, находится на конечной станции маршрута. Движение возможно только назад!")
         train.current_station.arrive_train(train)
-        # p train
       elsif n == "2"
         #условие: движение назад станция не начальная
         train.index(train.current_station) != 0 ? train.backward : puts("Поезд находится на начальной станции маршрута. Движение возможно только вперед")
         train.current_station.arrive_train(train)
-        # p train
-        # p train.current_station
       else
         puts OBJECT_ERROR
       end
@@ -251,7 +230,6 @@ class Main
 
     def add_remove_carriage
       # выводить те поезда, которые стоят на станции
-      #@trains = @trains.select {|train| !train.current_station.nil?}
       list_trains
       puts "введите номер, соответствующий нумерации поезда в списке"
       n = gets.chomp.to_i - 1
@@ -261,14 +239,10 @@ class Main
       n = gets.chomp.to_s
       if n == "1"
         create_carriage
-        # p @carriage
         @train.add_carriage(@carriage)
-        # p @train
       elsif n == "2"
-        # p @train
         carriage = @train.carriages[-1]
         @train.remove_carriage(carriage)
-        # p @train
       else
         puts OBJECT_ERROR
       end
@@ -294,5 +268,5 @@ main = Main.new
 
 loop do
   main.choices
-  main.action(user_choice)#(choice)
+  main.action(user_choice)
 end
