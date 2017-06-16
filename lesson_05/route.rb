@@ -1,10 +1,22 @@
 class Route < Station
-  attr_accessor :route
+  attr_accessor :route, :first_station, :last_station
 
+  @@routes = []
 
-  def initialize(first, last)
-    @route = [first, last]
+  def initialize(first_station, last_station)
+    @first_station = first_station
+    @last_station = last_station
+    validate!
+    @route = [first_station, last_station]
+     @@routes << self
   end
+
+  def self.all
+    @@routes
+    !@@routes.empty? ? @@routes : (raise "Сначала создайте маршрут")
+
+  end
+
 
   def add(station)
     @route.insert(-2, station)
@@ -16,6 +28,20 @@ class Route < Station
 
   def index
     @route.each { |station| puts "№#{@route.index(station)+1} - #{station}"}
+  end
+
+  def valid?
+    validate!
+  rescue
+    false
+  end
+
+  protected
+
+  def validate!
+    raise "Для создания маршрута нужны две станции" if first_station == last_station
+    raise "Для создания маршрута нужны две станции, создайте сначала станции" if @@stations.size < 2
+    true
   end
 
 end

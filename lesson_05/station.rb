@@ -1,16 +1,21 @@
 class Station
+  TYPE = {cargo: "грузовой", passenger: "пассажирский"}
+  NAME_FORMATE = /^[а-яa-z]{2,10}(\s[а-яА-Яa-zA-Z]{2,10})?(\-[0-9])?$/i
   attr_accessor :name
 
   @@stations = []
 
   def self.all
-   @@stations
+   # @@stations
+   !@@stations.empty? ? @@stations : (raise "Нет станций для отображения, создайте станцию")
+
   end
 
   def initialize(name)
-    self.name = name.to_s
+    @name = name.capitalize.to_s
+    validate!
     @trains = []
-    self.class.all << self
+    @@stations << self
   end
 
   def arrive_train(train)
@@ -27,6 +32,21 @@ class Station
     else
       puts "Нет поездов на станции"
     end
+  end
+
+  def valid?
+    validate!
+  rescue
+    false
+  end
+
+  protected
+
+  def validate!
+    raise "Станция должна иметь название" if name.nil?
+    @@stations.each {|station| raise "Станция  #{station.name} уже существует" if station.name == self.name}
+    raise "Неверный формат, название станции может состоять из одного или двух слов, а также содержать цифру через дефис" if name !~ NAME_FORMATE
+    true
   end
 
 end
