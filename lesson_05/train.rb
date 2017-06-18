@@ -14,11 +14,10 @@ class Train < Route
 
   def initialize(number)
     @number = number.to_s
-    # validate!
+    validate!
     self.carriages = []
     self.speed = START_SPEED
-    @@trains[number] = self
-    validate!
+    @@trains[number.to_sym] = self
     register_instance
   end
 
@@ -29,10 +28,8 @@ class Train < Route
 
 
   def add_carriage(carriage)
-    if @speed.zero?
-       @carriages << carriage if carriage.typ_carriage == typ_train
-     else
-        puts "Данная операция возможно только при остановке поезда"
+    if carriage.typ_carriage == typ_train
+    @speed.zero? ?  @carriages << carriage  :  (raise "Данная операция возможно только при остановке поезда")
     end
   end
 
@@ -72,6 +69,10 @@ class Train < Route
     false
   end
 
+  def show_train_carriages(&block)
+    @carriages.each.with_index(1) {|carriage, index|  block.call(carriage, index)}
+  end
+
 # нет прямого доступа к скорости из интерфейса
   protected
   attr_writer :speed
@@ -81,7 +82,7 @@ class Train < Route
 
     def validate!
       raise "поезд должен иметь номер" if number.nil?
-      raise "Поезд  #{number} уже существует" if @@trains.has_key?(number)
+      raise "Поезд  #{number} уже существует" if @@trains.has_key?(number.to_sym)
       raise  "Допустимый формат номера:  ###-## (# - цифра или буква), дефис может быть заменен пробелом" if number !~ NUMBER_FORMAT
     end
 end

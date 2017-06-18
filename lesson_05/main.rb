@@ -24,8 +24,11 @@ class Main
       puts "6-- переместить поезд по маршруту вперед и назад." #условие: наличие поезда, вперед - станция не конечная, назад станция не начальная
       puts "7-- поезд: прицепить/отцепить вагоны."#условие: наличие поезда, поезда, которые стоят на станции
       puts "8-- карта станций и передвижений поездов." #наличие станций
-      puts "9-- выход."
-      puts "Выберите  от 1 до 9"
+      puts "9-- отобразить список вагонов у поезда"
+      puts "10-- отобразить список поездов на станции"
+      puts "11-- продать ресурс"
+      puts "12-- выход."
+      puts "Выберите  от 1 до 11"
     end
 
     def action(choice)
@@ -47,6 +50,13 @@ class Main
         when '8'
           display_all
         when '9'
+          show_train_carriages_list
+        when '10'
+          station_train_list
+        when '11'
+          #Занимать место или объем в вагоне
+          carriage_take_capacity
+        when '12'
           abort
         else
           puts OBJECT_ERROR
@@ -58,7 +68,7 @@ class Main
 
     def list_stations
       puts "Список станций:"
-      Station.all.each.with_index(1) {|station, index| puts "#{index} - #{station.name}"}
+      Station.all.each.with_index(1) {|station, index| puts "#{index} станция - #{station.name}"}
     end
 
     def list_routes
@@ -78,7 +88,7 @@ class Main
 
     def select_train
       puts "введите номер поезда"
-      n = gets.chomp.to_s
+      n = gets.chomp.to_sym
       @selected_train = Train.all[n]
       raise "Такого номера поезда не существует" if @selected_train.nil?
     end
@@ -87,7 +97,7 @@ class Main
         puts "8-- карта станций и передвижений поездов."
         Station.all.each.with_index(1) do   |station, index|
          puts "#{index} - #{station.name}"
-         station.show
+         station.show_trains
         end
     end
 
@@ -230,13 +240,51 @@ class Main
     end
 
     def create_carriage
+# При создании вагона указывать кол-во мест или общий объем, в зависимости от типа вагона
         @typ_carriage = @selected_train.typ_train
-      if @typ_carriage == :cargo
-        @carriage = CargoCarriage.new
-      elsif @typ_carriage == :passenger
-        @carriage = PassengerCarriage.new
-      else puts OBJECT_ERROR
+        puts "Введите грузоподъемность вагона в кг" if @typ_carriage == :cargo
+        puts "Введите количество пассажирских мест в вагоне"  if @typ_carriage == :passenger
+        total_capacity = gets.chomp.to_i
+        @carriage = CargoCarriage.new(total_capacity) if @typ_carriage == :cargo
+        @carriage = PassengerCarriage.new(total_capacity)   if @typ_carriage == :passenger
+
+    end
+
+# Выводить список вагонов у поезда (в указанном выше формате), используя созданные методы
+    def train_carriages_list
+      @selected_train.show_train_carriages {|carriage, index| puts "вагон№ #{index}: общий ресурс: #{carriage.total_capacity}, продано: #{carriage.occupied_capacity}, свободный ресурс: #{carriage.free_capacity}"}
+    end
+
+    def show_train_carriages_list
+      list_trains
+      select_train
+      train_carriages_list
+    end
+
+# Выводить список поездов на станции (в указанном выше формате), используя  созданные методы
+    def station_train_list
+        list_stations
+        puts "введите номер выбранной станции"
+        n = gets.chomp.to_i - 1
+        station = Station.all[n]
+        station.show_trains
+    end
+# Занимать место или объем в вагоне
+  def carriage_take_capacity
+    show_train_carriages_list
+    puts "введите номер выбранного вагона"
+    n = gets.chomp.to_i - 1
+    carriage = @selected_train.carriages[n]
+      if carriage.typ_carriage == :cargo
+        puts "введите объем груза в кг"
+        volume = gets.chomp.to_i
+        carriage.take_capacity(volume)
+      elsif carriage.typ_carriage == :passenger
+        carriage.take_capacity
+      else
+        OBJECT_ERROR
       end
+      train_carriages_list
     end
 
 end

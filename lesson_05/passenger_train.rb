@@ -1,7 +1,7 @@
 class PassengerTrain < Train
 
   def initialize(number)
-    super
+    super(number)
     self.typ_train = :passenger
   end
 

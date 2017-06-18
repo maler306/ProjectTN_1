@@ -6,7 +6,6 @@ class Station
   @@stations = []
 
   def self.all
-   # @@stations
    !@@stations.empty? ? @@stations : (raise "Нет станций для отображения, создайте станцию")
 
   end
@@ -26,13 +25,23 @@ class Station
     @trains.delete(train)
   end
 
-  def show
+  def station_trains(&block)
+    @trains.each {|train| block.call(train)}
+  end
+
+  def show_trains
     if @trains.size > 0
-      @trains.each { |train| puts "поезд №#{train.number} - тип: #{TYPE[train.typ_train]}, маршрут следования: #{train.route[0].name} - #{train.route[-1].name}, количество вагонов: #{train.carriages.size}"}
+      station_trains do |train|
+        puts "поезд №#{train.number} - тип: #{TYPE[train.typ_train]}, маршрут следования: #{train.route[0].name} - #{train.route[-1].name}, количество вагонов: #{train.carriages.size}"
+        #carriages info
+        train.show_train_carriages {|carriage, index| puts "вагон№ #{index}: общий ресурс: #{carriage.total_capacity}, продано: #{carriage.occupied_capacity}, свободный ресурс: #{carriage.free_capacity}"}
+      end
     else
       puts "Нет поездов на станции"
     end
   end
+
+
 
   def valid?
     validate!
