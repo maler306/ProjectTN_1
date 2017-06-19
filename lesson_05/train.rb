@@ -69,7 +69,7 @@ class Train < Route
     false
   end
 
-  def show_train_carriages(&block)
+  def each_carriages(&block)
     @carriages.each.with_index(1) {|carriage, index|  block.call(carriage, index)}
   end
 

@@ -252,7 +252,7 @@ class Main
 
 # Выводить список вагонов у поезда (в указанном выше формате), используя созданные методы
     def train_carriages_list
-      @selected_train.show_train_carriages {|carriage, index| puts "вагон№ #{index}: общий ресурс: #{carriage.total_capacity}, продано: #{carriage.occupied_capacity}, свободный ресурс: #{carriage.free_capacity}"}
+      @selected_train.each_carriages {|carriage, index| puts "вагон№ #{index}: общий ресурс: #{carriage.total_capacity}, продано: #{carriage.occupied_capacity}, свободный ресурс: #{carriage.free_capacity}"}
     end
 
     def show_train_carriages_list
