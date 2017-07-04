@@ -1,9 +1,11 @@
 class Station
+  include Validation
   NAME_FORMATE = /^[а-яa-z]{2,10}(\s[а-яА-Яa-zA-Z]{2,10})?(\-[0-9])?$/i
-  # rubocop :disable Metrics/LineLength
-  STATION_FORMAT_ERROR = 'Неверный формат, название станции может состоять из одного или двух слов, а также содержать цифру через дефис'.freeze
-  # rubocop :enable Metrics/LineLength
   attr_accessor :name
+
+  validate :title, :presence
+  validate :type,  :type, Station
+  validate :name, :format, NAME_FORMATE
 
   @@stations = []
 
@@ -45,14 +47,5 @@ class Station
     validate!
   rescue
     false
-  end
-
-  protected
-
-  def validate!
-    raise 'Станция должна иметь название' if name.nil?
-    @@stations.each { |station| raise "#{station.name} уже существует" if station.name == name }
-    raise STATION_FORMAT_ERROR if name !~ NAME_FORMATE
-    true
   end
 end

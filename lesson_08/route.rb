@@ -1,5 +1,10 @@
 class Route < Station
+  include Validation
+
   attr_accessor :route, :first_station, :last_station
+
+  validate :first_station, :exists
+  validate :last_station, :exists
 
   @@routes = []
 
@@ -31,13 +36,5 @@ class Route < Station
     validate!
   rescue
     false
-  end
-
-  protected
-
-  def validate!
-    raise 'Для создания маршрута нужны две станции' if first_station == last_station
-    raise 'Сначала создайте станции' if @@stations.size < 2
-    true
   end
 end

@@ -106,7 +106,10 @@ class Main
   end
 
   def create_station
+    # rubocop :enable Metrics/LineLength'
     puts 'Введите название новой станции'
+    puts 'название может состоять из одного или двух слов, а также содержать цифру через дефис'
+    # rubocop :enable Metrics/LineLength
     name = gets.chomp.downcase.capitalize!
     station = Station.new(name)
     puts "Станция #{station.name} создана!"
@@ -117,6 +120,7 @@ class Main
     puts 'выберите тип поезда: 1 - пассажирский, 2- грузовой'
     n = gets.to_i
     puts 'Введите номер поезда:'
+    puts 'Допустимый формат номера:  ###-## (# - цифра или буква) или ### ##'
     number = gets.chomp
     [1, 2].include?(n) ? create_train!(number) : (raise OBJECT_ERROR)
     list_trains
