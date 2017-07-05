@@ -49,8 +49,8 @@ module Validation
       ObjectSpace.each_object(self.class) { |obj| raise "#{value} существует" if obj.send(name) == value && obj != self }
     end
 
-    def exists(_name, value, *_option)
-      raise 'Станция не существует' unless Station.all.include?(value)
+    def exists(name, value, *_option)
+      raise '#{name} не существует' unless Station.all.include?(value)
     end
   end
 end
