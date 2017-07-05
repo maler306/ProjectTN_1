@@ -1,8 +1,11 @@
 class Carriage < Train
   include Manufacture
+  include Validation
 
   attr_accessor :occupied_capacity, :free_capacity
   attr_reader :typ_carriage, :total_capacity
+
+  validate :total_capacity, :presence
 
   def initialize(total_capacity)
     @total_capacity = total_capacity.to_i
@@ -21,10 +24,4 @@ class Carriage < Train
     end
   end
 
-  protected
-
-  def validate!
-    raise 'Введите грузоподъемность вагона' if total_capacity.nil? && @typ_carriage == :cargo
-    raise 'Введите количество пассажирских мест' if total_capacity.nil? && @typ_carriage == :passenger
-  end
 end
