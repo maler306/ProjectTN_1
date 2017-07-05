@@ -16,6 +16,7 @@ class Train < Route
 
   validate :number, :presence
   validate :number, :format, NUMBER_FORMAT
+  validate :number, :uniqueness
 
   @@trains = {}
 

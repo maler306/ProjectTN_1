@@ -3,9 +3,10 @@ class Station
   NAME_FORMATE = /^[а-яa-z]{2,10}(\s[а-яА-Яa-zA-Z]{2,10})?(\-[0-9])?$/i
   attr_accessor :name
 
-  validate :title, :presence
+  validate :name, :presence
   validate :type,  :type, Station
   validate :name, :format, NAME_FORMATE
+  validate :name, :uniqueness
 
   @@stations = []
 

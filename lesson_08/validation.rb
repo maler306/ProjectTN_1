@@ -45,6 +45,10 @@ module Validation
       raise "Тип объекта не соответствует #{klass}." unless is_a?(klass)
     end
 
+    def uniqueness(name, value, *_option)
+      ObjectSpace.each_object(self.class) { |obj| raise "#{value} существует" if obj.send(name) == value && obj != self }
+    end
+
     def exists(_name, value, *_option)
       raise 'Станция не существует' unless Station.all.include?(value)
     end
